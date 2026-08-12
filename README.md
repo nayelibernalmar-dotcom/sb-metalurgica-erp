@@ -4,6 +4,23 @@ Sistema de gestión (ERP) full-stack desarrollado para digitalizar la operación
 
 > Proyecto real desarrollado para una empresa. Este repositorio es una versión saneada para portafolio: no incluye datos operativos, bases de datos, backups ni credenciales reales. Los valores sensibles se configuran mediante variables de entorno.
 
+## Capturas del sistema
+
+### Panel principal
+
+<img src="PANEL-PRINCIPAL-ERP.png" alt="Panel principal del ERP de SB Metalúrgica" width="100%">
+
+### Inventario
+
+<img src="INVENTARIO-ERP.png" alt="Módulo de inventario del ERP de SB Metalúrgica" width="100%">
+
+### Ventas
+
+<img src="VENTAS-ERP.png" alt="Módulo de ventas del ERP de SB Metalúrgica" width="100%">
+
+### Gestión de caja
+
+<img src="CAJA-ERP.png" alt="Módulo de caja del ERP de SB Metalúrgica" width="100%">
 ## Módulos
 
 | Área | Funcionalidad |

@@ -1,0 +1,41 @@
+-- Ventas
+Ventas Netas =
+CALCULATE(SUM(fact_venta_items[precio_total]), fact_venta_items[estado] <> "anulada")
+
+Cantidad de Ventas =
+CALCULATE(DISTINCTCOUNT(fact_venta_items[venta_id]), fact_venta_items[estado] <> "anulada")
+
+Ticket Promedio =
+DIVIDE([Ventas Netas], [Cantidad de Ventas], 0)
+
+Unidades Vendidas =
+CALCULATE(SUM(fact_venta_items[cantidad]), fact_venta_items[estado] <> "anulada")
+
+Ventas Anuladas =
+CALCULATE(DISTINCTCOUNT(fact_venta_items[venta_id]), fact_venta_items[estado] = "anulada")
+
+-- Caja
+Ingresos de Caja =
+CALCULATE(SUM(fact_caja[monto]), fact_caja[tipo] = "ingreso")
+
+Egresos de Caja =
+CALCULATE(SUM(fact_caja[monto]), fact_caja[tipo] = "egreso")
+
+Saldo de Caja =
+SUM(fact_caja[monto_neto])
+
+-- Inventario actual
+Stock Actual =
+SUM(fact_inventario_actual[stock])
+
+Productos a Reponer =
+CALCULATE(DISTINCTCOUNT(fact_inventario_actual[producto_id]), fact_inventario_actual[necesita_reposicion] = TRUE())
+
+Cantidad a Reponer =
+SUM(fact_inventario_actual[cantidad_a_reponer])
+
+Valor de Inventario a Costo =
+SUM(fact_inventario_actual[valor_costo_estimado])
+
+Valor Potencial de Venta =
+SUM(fact_inventario_actual[valor_venta_estimado])

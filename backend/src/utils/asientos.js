@@ -1,4 +1,5 @@
 const { siguienteNumero } = require('./numeracion');
+const { parseDecimal, formatDecimal } = require('./money');
 
 /**
  * Crea un asiento contable a partir de líneas ya armadas.
@@ -9,10 +10,10 @@ const { siguienteNumero } = require('./numeracion');
  * lineas: [{ cuenta_codigo, centro_costo_id?, debe?, haber?, descripcion? }, ...]
  */
 async function crearAsientoAutomatico(client, { fecha, descripcion, origen, origen_tabla, origen_id, lineas, creado_por }) {
-  const totalDebe = lineas.reduce((s, l) => s + (l.debe || 0), 0);
-  const totalHaber = lineas.reduce((s, l) => s + (l.haber || 0), 0);
-  if (Math.abs(totalDebe - totalHaber) > 0.01) {
-    throw new Error(`Asiento automático desbalanceado (debe ${totalDebe} != haber ${totalHaber}), origen: ${origen_tabla}#${origen_id}`);
+  const totalDebe = lineas.reduce((s, l) => s + parseDecimal(l.debe || 0), 0n);
+  const totalHaber = lineas.reduce((s, l) => s + parseDecimal(l.haber || 0), 0n);
+  if (totalDebe !== totalHaber) {
+    throw new Error(`Asiento automático desbalanceado (debe ${formatDecimal(totalDebe)} != haber ${formatDecimal(totalHaber)}), origen: ${origen_tabla}#${origen_id}`);
   }
 
   const numero = await siguienteNumero(client, 'asientos_contables', 'A');

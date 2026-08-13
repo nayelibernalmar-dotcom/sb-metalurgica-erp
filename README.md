@@ -38,14 +38,17 @@ Sistema de gestión (ERP) full-stack desarrollado para digitalizar la operación
 | **Empleados** | Legajo, historial de pagos editable/eliminable con reversión automática del asiento contable asociado |
 | **Auditoría** | Registro de quién hizo qué cambio y cuándo, en las operaciones sensibles (plata, contabilidad, usuarios) |
 | **Backups** | Backup automático diario (cron) de toda la base de datos, con rotación y descarga manual |
+| **Power BI** | Modelo estrella de solo lectura para ventas, caja e inventario, sin datos personales ni credenciales |
 | **Usuarios y roles** | Autenticación JWT, roles (admin / vendedor / caja / depósito), pantallas restringidas por rol |
 
 ## Stack técnico
 
 **Frontend:** React 18, Redux Toolkit, React Router, Tailwind CSS, Chart.js, Tabler Icons, Vite
-**Backend:** Node.js, Express, PostgreSQL (driver `pg`), JWT, bcrypt
+**Backend:** Node.js, Express, PostgreSQL (driver `pg`), JWT, `bcryptjs`
 **Exportación de reportes:** ExcelJS, PDFKit
 **Infraestructura:** Render (Web Service + PostgreSQL administrado), backups programados con `node-cron`
+
+La guía de conexión, relaciones, medidas DAX y tema visual para Power BI está en [`docs/POWER_BI.md`](docs/POWER_BI.md).
 
 ## Arquitectura
 
@@ -111,3 +114,24 @@ Diseñé la arquitectura, el modelo de datos y las decisiones funcionales del si
 ## Uso del código
 
 Código publicado exclusivamente con fines de evaluación profesional y portafolio. Todos los derechos reservados; consultá el archivo `LICENSE`.
+
+## Integridad financiera y pruebas
+
+- PostgreSQL guarda importes como `NUMERIC(14,2)`. Los cálculos nuevos de ventas, caja y balanceo de asientos usan enteros escalados (`BigInt`) y strings decimales, evitando sumar dinero con coma flotante.
+- Los cierres y movimientos de Caja Grande usan transacciones `SERIALIZABLE`, bloqueos y auditoría dentro del mismo `COMMIT`.
+- Caja Grande separa la capa HTTP (`controllers`) de sus casos de uso transaccionales (`services`) sin agregar capas innecesarias al resto de los módulos.
+
+Ejecutá las pruebas unitarias con:
+
+```bash
+cd backend
+npm test
+```
+
+Cubren aritmética decimal, rechazo de asientos desbalanceados y auditoría transaccional. Para producción todavía corresponden pruebas de integración contra PostgreSQL para login, permisos, ventas, cierres y reversiones.
+
+## Backups: alcance y límites de producción
+
+El job incorporado crea un snapshot consistente (`REPEATABLE READ`), escribe primero un archivo temporal, publica el resultado mediante renombrado atómico, evita ejecuciones solapadas y reporta SHA-256. La carpeta, frecuencia, activación y retención son configurables mediante variables de entorno.
+
+El JSON local es una ayuda operativa, no una estrategia completa de recuperación: excluye auditoría, roles/objetos fuera de las tablas, WAL y recuperación a un punto en el tiempo. En producción se debe usar `pg_dump` o el mecanismo administrado del proveedor, almacenamiento externo cifrado e inmutable, alertas y restauraciones ensayadas. Con varias instancias, el cron debe ejecutarse como un worker único o job externo, no dentro de cada servidor web.

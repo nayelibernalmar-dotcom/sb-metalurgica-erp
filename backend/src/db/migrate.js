@@ -7,11 +7,14 @@ const { seedPlanDeCuentas } = require('./seedContabilidad');
 async function migrate() {
   console.log('🔧 Conectando a la base de datos...');
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+  const analytics = fs.readFileSync(path.join(__dirname, 'analytics.sql'), 'utf8');
 
   try {
     console.log('🔧 Creando tablas...');
     await pool.query(schema);
     console.log('✅ Tablas creadas correctamente.');
+    await pool.query(analytics);
+    console.log('✅ Vistas analíticas para Power BI creadas correctamente.');
 
     const { rows } = await pool.query(`SELECT id FROM usuarios WHERE rol = 'admin' LIMIT 1`);
     if (rows.length === 0) {

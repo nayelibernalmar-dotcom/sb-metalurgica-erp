@@ -32,7 +32,18 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32 || process.env
 }
 
 app.disable('x-powered-by');
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"], baseUri: ["'self'"], objectSrc: ["'none'"],
+      frameAncestors: ["'none'"], formAction: ["'self'"], scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'", 'data:'], connectSrc: ["'self'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 if (process.env.NODE_ENV !== 'production') {
   app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }));
 }

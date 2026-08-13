@@ -147,8 +147,8 @@ async function crearAsientoManual(req, res) {
         [asiento.id, orden++, it.cuenta_id, it.centro_costo_id || null, it.descripcion || null, parseFloat(it.debe) || 0, parseFloat(it.haber) || 0]
       );
     }
+    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'crear', entidad: 'asientos_contables', entidad_id: asiento.id, detalle: { numero: asiento.numero, descripcion: asiento.descripcion, items }, client, strict: true });
     await client.query('COMMIT');
-    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'crear', entidad: 'asientos_contables', entidad_id: asiento.id, detalle: { numero: asiento.numero, descripcion: asiento.descripcion, items } });
     res.status(201).json({ asiento: await obtenerAsientoCompleto(asiento.id) });
   } catch (err) {
     await client.query('ROLLBACK');

@@ -1,6 +1,7 @@
 const pool = require('../db/pool');
 const { siguienteNumero } = require('../utils/numeracion');
 const { crearAsientoAutomatico, anularAsientosDeOrigen } = require('../utils/asientos');
+const { addMoney, multiplyMoney } = require('../utils/money');
 const UNIDADES = ['unidades', 'metros'];
 const ESTADOS = ['pendiente', 'pagada', 'anulada'];
 
@@ -54,7 +55,8 @@ async function crearVenta(req, res) {
   try {
     await client.query('BEGIN');
     const numero = await siguienteNumero(client, 'ventas', 'V');
-    const total = items.reduce((s, it) => s + it.cantidad * it.precio_unitario, 0);
+    const totalesItems = items.map((it) => multiplyMoney(it.cantidad, it.precio_unitario));
+    const total = addMoney(totalesItems);
     const estadoFinal = estado || 'pagada';
 
     const { rows } = await client.query(
@@ -65,11 +67,11 @@ async function crearVenta(req, res) {
     const venta = rows[0];
 
     let orden = 1;
-    for (const it of items) {
+    for (const [indice, it] of items.entries()) {
       await client.query(
         `INSERT INTO venta_items (venta_id,orden,producto_id,descripcion,cantidad,unidad,precio_unitario,precio_total)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-        [venta.id, orden++, it.producto_id || null, it.descripcion.trim(), it.cantidad, it.unidad || 'unidades', it.precio_unitario, it.cantidad * it.precio_unitario]
+        [venta.id, orden++, it.producto_id || null, it.descripcion.trim(), it.cantidad, it.unidad || 'unidades', it.precio_unitario, totalesItems[indice]]
       );
     }
 

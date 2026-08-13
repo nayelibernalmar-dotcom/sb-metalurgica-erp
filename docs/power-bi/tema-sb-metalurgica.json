@@ -1,0 +1,13 @@
+{
+  "name": "SB Metalúrgica",
+  "dataColors": ["#1F4E5F", "#D97706", "#3F7C85", "#64748B", "#B45309", "#0F766E"],
+  "background": "#F8FAFC",
+  "foreground": "#172033",
+  "tableAccent": "#1F4E5F",
+  "good": "#15803D",
+  "neutral": "#D97706",
+  "bad": "#B91C1C",
+  "maximum": "#1F4E5F",
+  "center": "#E2E8F0",
+  "minimum": "#F8FAFC"
+}

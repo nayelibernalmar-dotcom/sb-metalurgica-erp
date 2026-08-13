@@ -5,7 +5,7 @@ const { registrarAuditoria } = require('../utils/auditoria');
 
 async function listar(req, res) {
   try {
-    res.json({ backups: listarBackups() });
+    res.json({ backups: await listarBackups() });
   } catch (err) {
     console.error('Error al listar backups:', err);
     res.status(500).json({ error: 'Error interno del servidor.' });

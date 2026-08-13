@@ -109,8 +109,8 @@ async function registrarPago(req, res) {
       ],
     });
 
+    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'crear', entidad: 'empleado_pagos', entidad_id: pago[0].id, detalle: pago[0], client, strict: true });
     await client.query('COMMIT');
-    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'crear', entidad: 'empleado_pagos', entidad_id: pago[0].id, detalle: pago[0] });
     res.status(201).json({ pago: pago[0] });
   } catch (err) {
     await client.query('ROLLBACK');
@@ -182,8 +182,8 @@ async function editarPago(req, res) {
       ],
     });
 
+    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'editar', entidad: 'empleado_pagos', entidad_id: Number(pagoId), detalle: { antes: pagoActual[0], despues: pago[0] }, client, strict: true });
     await client.query('COMMIT');
-    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'editar', entidad: 'empleado_pagos', entidad_id: Number(pagoId), detalle: { antes: pagoActual[0], despues: pago[0] } });
     res.json({ pago: pago[0] });
   } catch (err) {
     await client.query('ROLLBACK');
@@ -212,8 +212,8 @@ async function eliminarPago(req, res) {
     await anularAsientosDeOrigen(client, 'empleado_pagos', pagoId);
     await client.query('DELETE FROM empleado_pagos WHERE id = $1', [pagoId]);
 
+    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'eliminar', entidad: 'empleado_pagos', entidad_id: Number(pagoId), detalle: pago[0], client, strict: true });
     await client.query('COMMIT');
-    await registrarAuditoria({ usuario_id: req.usuario.id, accion: 'eliminar', entidad: 'empleado_pagos', entidad_id: Number(pagoId), detalle: pago[0] });
     res.json({ mensaje: 'Pago eliminado correctamente.' });
   } catch (err) {
     await client.query('ROLLBACK');
